@@ -11,6 +11,10 @@ import java.util.List;
 
 class AddressList {
     public List<String> addresses;
+
+    public AddressList(List<String> addresses) {
+        this.addresses = addresses;
+    }
 }
 
 @org.springframework.web.bind.annotation.RestController
@@ -19,7 +23,7 @@ public class RestController {
     private OkHttpClient client = new OkHttpClient();
 
     @PostMapping("inn")
-    public String processInn(@org.springframework.web.bind.annotation.RequestBody ProcessInnDto req) throws IOException {
+    public AddressList processInn(@org.springframework.web.bind.annotation.RequestBody ProcessInnDto req) throws IOException {
         RequestBody body = RequestBody.create(JSON, String.format("{ \"query\": \"%s\" }", req.inn));
         Request request = new Request.Builder()
                 .url("https://suggestions.dadata.ru/suggestions/api/4_1/rs/findById/party")
@@ -31,14 +35,14 @@ public class RestController {
 
         JSONObject respJson = new JSONObject(resp.body().string());
         JSONArray suggestions = respJson.getJSONArray("suggestions");
-        JSONArray addresses = new JSONArray();
+        List<String> addresses = new ArrayList();
         for (int i = 0; i < suggestions.length(); i++)
         {
             JSONObject data = suggestions.getJSONObject(i).getJSONObject("data");
             JSONObject address = data.getJSONObject("address");
-            addresses.put(address.getString("value"));
+            addresses.add(address.getString("value"));
         }
 
-        return addresses.toString();
+        return new AddressList(addresses);
     }
 }

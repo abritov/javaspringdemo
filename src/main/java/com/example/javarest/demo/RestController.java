@@ -9,6 +9,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+class AddressList {
+    public List<String> addresses;
+}
+
 @org.springframework.web.bind.annotation.RestController
 public class RestController {
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
@@ -27,14 +31,14 @@ public class RestController {
 
         JSONObject respJson = new JSONObject(resp.body().string());
         JSONArray suggestions = respJson.getJSONArray("suggestions");
-        List<String> addresses = new ArrayList();
+        JSONArray addresses = new JSONArray();
         for (int i = 0; i < suggestions.length(); i++)
         {
             JSONObject data = suggestions.getJSONObject(i).getJSONObject("data");
             JSONObject address = data.getJSONObject("address");
-            addresses.add(address.getString("value"));
+            addresses.put(address.getString("value"));
         }
 
-        return "respBody";
+        return addresses.toString();
     }
 }

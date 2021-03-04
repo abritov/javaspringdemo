@@ -1,9 +1,13 @@
 package com.example.javarest.demo;
 
 import okhttp3.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @org.springframework.web.bind.annotation.RestController
 public class RestController {
@@ -20,7 +24,17 @@ public class RestController {
                 .build();
         Response resp = client.newCall(request).execute();
         assert resp.body() != null;
-        String respBody = resp.body().string();
-        return respBody;
+
+        JSONObject respJson = new JSONObject(resp.body().string());
+        JSONArray suggestions = respJson.getJSONArray("suggestions");
+        List<String> addresses = new ArrayList();
+        for (int i = 0; i < suggestions.length(); i++)
+        {
+            JSONObject data = suggestions.getJSONObject(i).getJSONObject("data");
+            JSONObject address = data.getJSONObject("address");
+            addresses.add(address.getString("value"));
+        }
+
+        return "respBody";
     }
 }
